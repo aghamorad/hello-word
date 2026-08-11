@@ -48,16 +48,19 @@ SDK_PATH="$(xcrun --sdk macosx --show-sdk-path)"
     -O \
     -framework AppKit \
     -framework AVFoundation \
+    -framework CoreImage \
     -framework UniformTypeIdentifiers \
     "${PROJECT_ROOT}"/Sources/HelloWord/*.swift \
     -o "${BUILD_ROOT}/HelloWord"
 
-mkdir -p "${MACOS_PATH}" "${HELPERS_PATH}" "${RESOURCES_PATH}/Placeholder Music" "${RESOURCES_PATH}/World Art"
+mkdir -p "${MACOS_PATH}" "${HELPERS_PATH}" "${RESOURCES_PATH}/Placeholder Music" "${RESOURCES_PATH}/Typing Sounds/typewriter" "${RESOURCES_PATH}/World Art"
 cp "${BUILD_ROOT}/HelloWord" "${MACOS_PATH}/HelloWord"
 cp "${PROJECT_ROOT}/Resources/Info.plist" "${CONTENTS_PATH}/Info.plist"
 cp "${PROJECT_ROOT}/Resources/AppIcon.icns" "${RESOURCES_PATH}/AppIcon.icns"
 cp "${PROJECT_ROOT}/Resources/Harper/LICENSE.txt" "${RESOURCES_PATH}/Harper LICENSE.txt"
 cp "${PROJECT_ROOT}"/Resources/Placeholder\ Music/*.m4a "${RESOURCES_PATH}/Placeholder Music/"
+cp "${PROJECT_ROOT}"/Resources/Typing\ Sounds/typewriter/* "${RESOURCES_PATH}/Typing Sounds/typewriter/"
+cp "${PROJECT_ROOT}/Resources/Typing Sounds/TYPEWRITER_LICENSE.txt" "${RESOURCES_PATH}/Typewriter Sound License.txt"
 cp "${PROJECT_ROOT}"/Resources/World\ Art/*.png "${RESOURCES_PATH}/World Art/"
 
 ACTUAL_HARPER_SHA256="$(shasum -a 256 "${HARPER_ARCHIVE}" | awk '{print $1}')"

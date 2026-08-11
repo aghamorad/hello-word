@@ -1,4 +1,5 @@
 import AppKit
+import CoreImage
 import UniformTypeIdentifiers
 
 final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDelegate {
@@ -44,6 +45,8 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
     private var eraMenuOverlay: EraMenuOverlay?
     private var fontChooserOverlay: FontChooserOverlay?
     private var editorWidthConstraint: NSLayoutConstraint?
+    private var editorTopConstraint: NSLayoutConstraint?
+    private var editorBottomConstraint: NSLayoutConstraint?
     private var editorWidthRatio: CGFloat = {
         let saved = UserDefaults.standard.double(forKey: "writingWidthRatio")
         return saved > 0 ? CGFloat(saved) : 0.68
@@ -100,6 +103,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         } else {
             showOpeningSplashIfNeeded()
         }
+    }
+
+    override func viewDidLayout() {
+        super.viewDidLayout()
+        updateEditorVerticalBounds()
     }
 
     private func configureEditor() {
@@ -537,11 +545,15 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
 
     private func installConstraints() {
         let proportionalWidth = scrollView.widthAnchor.constraint(equalTo: backdrop.widthAnchor, multiplier: editorWidthRatio)
+        let top = scrollView.topAnchor.constraint(equalTo: backdrop.topAnchor, constant: 42)
+        let bottom = scrollView.bottomAnchor.constraint(equalTo: backdrop.bottomAnchor, constant: -42)
         editorWidthConstraint = proportionalWidth
+        editorTopConstraint = top
+        editorBottomConstraint = bottom
         NSLayoutConstraint.activate([
             scrollView.centerXAnchor.constraint(equalTo: backdrop.centerXAnchor),
-            scrollView.topAnchor.constraint(equalTo: backdrop.topAnchor, constant: 42),
-            scrollView.bottomAnchor.constraint(equalTo: backdrop.bottomAnchor, constant: -42),
+            top,
+            bottom,
             proportionalWidth,
             scrollView.widthAnchor.constraint(lessThanOrEqualTo: backdrop.widthAnchor, constant: -24),
             scrollView.widthAnchor.constraint(greaterThanOrEqualToConstant: 220),
@@ -563,6 +575,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         writingWidthSlider.maxValue = Double(widthMaximum)
         writingWidthSlider.doubleValue = Double(editorWidthRatio)
         replaceEditorWidthConstraint()
+        updateEditorVerticalBounds()
         backdrop.theme = currentTheme
         typingAudio.profile = currentTheme.typingProfile
         musicLibrary.activate(id)
@@ -572,20 +585,25 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         view.window?.isOpaque = false
         view.window?.backgroundColor = .clear
 
-        textView.textColor = currentTheme.textColor
-        textView.insertionPointColor = currentTheme.insertionColor
+        textView.wantsLayer = true
+        let adaptiveGlass = id == .liquidGlass
+        textView.layer?.compositingFilter = adaptiveGlass ? CIFilter(name: "CIDifferenceBlendMode") : nil
+        let writingColor = adaptiveGlass ? NSColor.white : currentTheme.textColor
+        let insertionColor = adaptiveGlass ? NSColor.white : currentTheme.insertionColor
+        textView.textColor = writingColor
+        textView.insertionPointColor = insertionColor
         textView.selectedTextAttributes = [
-            .backgroundColor: currentTheme.textColor.withAlphaComponent(0.20),
-            .foregroundColor: currentTheme.textColor
+            .backgroundColor: writingColor.withAlphaComponent(0.24),
+            .foregroundColor: writingColor
         ]
         textView.linkTextAttributes = [
-            .foregroundColor: currentTheme.insertionColor,
+            .foregroundColor: insertionColor,
             .underlineStyle: NSUnderlineStyle.single.rawValue
         ]
 
         switch id {
         case .typewriter:
-            textView.textContainerInset = NSSize(width: 26, height: 74)
+            textView.textContainerInset = NSSize(width: 30, height: 28)
         case .mac1999, .system95:
             textView.textContainerInset = NSSize(width: 24, height: 38)
         case .dos:
@@ -603,7 +621,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         textView.defaultParagraphStyle = paragraph
         var attributes: [NSAttributedString.Key: Any] = [
             .font: font,
-            .foregroundColor: currentTheme.textColor,
+            .foregroundColor: writingColor,
             .paragraphStyle: paragraph
         ]
         if let shadow = textShadow(for: id) { attributes[.shadow] = shadow }
@@ -644,9 +662,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
             shadow.shadowBlurRadius = 7
             return shadow
         case .liquidGlass:
-            shadow.shadowColor = NSColor.white.withAlphaComponent(0.34)
-            shadow.shadowBlurRadius = 1.25
-            return shadow
+            return nil
         default:
             return nil
         }
@@ -1044,7 +1060,15 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
     @objc func showFontPanel(_ sender: Any?) {
         fontChooserOverlay?.removeFromSuperview()
         let currentSize = textView.font?.pointSize ?? currentTheme.defaultFontSize
-        let chooser = FontChooserOverlay(frame: backdrop.bounds, theme: currentTheme, currentSize: currentSize)
+        let storage = textView.textStorage
+        let location = min(textView.selectedRange().location, storage?.length ?? 0)
+        let usesPersianPreview = storage.map { isRightToLeftParagraph(at: location, in: $0) } ?? false
+        let chooser = FontChooserOverlay(
+            frame: backdrop.bounds,
+            theme: currentTheme,
+            currentSize: currentSize,
+            usesPersianPreview: usesPersianPreview
+        )
         chooser.autoresizingMask = [.width, .height]
         chooser.onChoose = { [weak self] font in self?.applyChosenFont(font) }
         chooser.onDismiss = { [weak self, weak chooser] in
@@ -1308,9 +1332,23 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         case .typewriter: return 0.44
         case .mac1999, .system95: return 0.92
         case .dos: return 0.94
+        case .library: return 0.52
         case .spaceAge: return 0.88
         case .cyberdeck: return 0.76
         default: return 0.96
+        }
+    }
+
+    private func updateEditorVerticalBounds() {
+        guard let top = editorTopConstraint, let bottom = editorBottomConstraint else { return }
+        if currentTheme.id == .typewriter {
+            // The editor is clipped to the real sheet held in the platen. It cannot
+            // descend into the keys or float above the paper when the window resizes.
+            top.constant = max(54, backdrop.bounds.height * 0.09)
+            bottom.constant = -max(250, backdrop.bounds.height * 0.39)
+        } else {
+            top.constant = 42
+            bottom.constant = -42
         }
     }
 
@@ -1790,7 +1828,7 @@ private final class FontChooserOverlay: NSView, NSTableViewDataSource, NSTableVi
     private let palette: EraMenuPalette
     private let panel: EraMenuPanelView
     private let searchField = NSTextField()
-    private let preview = NSTextField(labelWithString: "The next sentence begins here.   جمله‌ی بعدی از اینجا آغاز می‌شود.")
+    private let preview = NSTextField(labelWithString: "The next sentence begins here.")
     private let table = NSTableView()
     private let sizeSlider = NSSlider(value: 20, minValue: 11, maxValue: 48, target: nil, action: nil)
     private let sizeLabel = NSTextField(labelWithString: "")
@@ -1798,14 +1836,17 @@ private final class FontChooserOverlay: NSView, NSTableViewDataSource, NSTableVi
     private var filteredFamilies: [String]
     private var chosenFamily: String?
 
-    init(frame: NSRect, theme: WritingTheme, currentSize: CGFloat) {
+    init(frame: NSRect, theme: WritingTheme, currentSize: CGFloat, usesPersianPreview: Bool) {
         self.theme = theme
         self.palette = .make(for: theme)
 
         let installed = NSFontManager.shared.availableFontFamilies
         var ordered: [String] = []
         var seen = Set<String>()
-        for family in theme.defaultFontNames + ["Vazirmatn", "Noto Naskh Arabic", "Noto Sans Arabic", "Geeza Pro", "SF Arabic"] + installed {
+        let contextualFamilies = usesPersianPreview
+            ? ["Vazirmatn", "Noto Naskh Arabic", "Noto Sans Arabic", "Geeza Pro", "SF Arabic"]
+            : []
+        for family in theme.defaultFontNames + contextualFamilies + installed {
             let key = family.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
             if !seen.contains(key) {
                 seen.insert(key)
@@ -1840,6 +1881,8 @@ private final class FontChooserOverlay: NSView, NSTableViewDataSource, NSTableVi
         preview.alignment = .center
         preview.lineBreakMode = .byTruncatingTail
         preview.textColor = palette.text
+        preview.stringValue = usesPersianPreview ? "جمله‌ی بعدی از اینجا آغاز می‌شود." : "The next sentence begins here."
+        preview.alignment = usesPersianPreview ? .right : .center
         preview.frame = NSRect(x: 20, y: panelHeight - 91, width: panelWidth - 40, height: 34)
         panel.addSubview(preview)
 

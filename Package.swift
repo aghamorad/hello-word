@@ -17,6 +17,7 @@ let package = Package(
             linkerSettings: [
                 .linkedFramework("AppKit"),
                 .linkedFramework("AVFoundation"),
+                .linkedFramework("CoreImage"),
                 .linkedFramework("UniformTypeIdentifiers")
             ]
         )
