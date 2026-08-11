@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="bondi" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#8ff9f1"/>
+      <stop offset=".48" stop-color="#22c7ce"/>
+      <stop offset="1" stop-color="#087c9b"/>
+    </linearGradient>
+    <linearGradient id="bondiDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#158faa"/>
+      <stop offset="1" stop-color="#075069"/>
+    </linearGradient>
+    <linearGradient id="platinum" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0" stop-color="#f5f3e9"/>
+      <stop offset="1" stop-color="#b8b8b3"/>
+    </linearGradient>
+    <linearGradient id="crt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#fff8cf"/>
+      <stop offset=".58" stop-color="#e6f2df"/>
+      <stop offset="1" stop-color="#9fcfd2"/>
+    </linearGradient>
+    <linearGradient id="keyboard" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0" stop-color="#eeeeea"/>
+      <stop offset="1" stop-color="#9fa5a8"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="170%" height="180%">
+      <feDropShadow dx="0" dy="34" stdDeviation="26" flood-color="#092a38" flood-opacity=".46"/>
+    </filter>
+  </defs>
+
+  <!-- Classic Mac OS object icons floated freely; the silhouette, not a modern squircle, is the icon. -->
+  <ellipse cx="507" cy="885" rx="355" ry="67" fill="#061e2b" opacity=".25"/>
+
+  <g filter="url(#shadow)" stroke="#173443" stroke-linejoin="round">
+    <!-- Translucent Bondi CRT shell and its isometric rear. -->
+    <path d="M228 114h493q91 0 105 88l57 365q12 78-68 95L673 692H237q-93 0-93-92V214q0-100 84-100z" fill="url(#bondi)" stroke-width="18"/>
+    <path d="M721 114q91 0 105 88l57 365q12 78-68 95l-142 30 48-82q31-54 24-127l-30-284q-6-57-54-85z" fill="url(#bondiDark)" stroke-width="14" opacity=".94"/>
+    <path d="M204 148h458q73 0 81 71l34 296q9 78-69 78H212q-42 0-42-45V196q0-48 34-48z" fill="#d9dfd9" stroke-width="15"/>
+
+    <!-- Full writing display: platinum chrome, page, insertion cursor, footnote, correction. -->
+    <rect x="211" y="184" width="493" height="354" rx="15" fill="#2c3b47" stroke-width="13"/>
+    <rect x="235" y="208" width="445" height="306" rx="7" fill="url(#crt)" stroke="#627176" stroke-width="6"/>
+    <rect x="235" y="208" width="445" height="37" fill="#c7c8c5" stroke="#5e6668" stroke-width="5"/>
+    <rect x="248" y="220" width="13" height="13" fill="#ff4b86" stroke="none"/>
+    <rect x="270" y="220" width="13" height="13" fill="#ffe25a" stroke="none"/>
+    <rect x="292" y="220" width="13" height="13" fill="#43dbb8" stroke="none"/>
+    <g fill="#fff" opacity=".72" stroke="none">
+      <rect x="327" y="217" width="172" height="3"/>
+      <rect x="327" y="226" width="172" height="3"/>
+      <rect x="327" y="235" width="172" height="3"/>
+    </g>
+
+    <g fill="#293548" stroke="none">
+      <rect x="286" y="302" width="234" height="17"/>
+      <rect x="286" y="350" width="302" height="17" opacity=".84"/>
+      <rect x="286" y="398" width="258" height="17" opacity=".68"/>
+      <rect x="286" y="446" width="188" height="17" opacity=".54"/>
+    </g>
+    <rect x="566" y="382" width="13" height="43" fill="#ff3d8d" stroke="none"/>
+
+    <!-- Superscript footnote and a small green correction mark. -->
+    <g fill="#395066" stroke="none">
+      <rect x="529" y="286" width="6" height="19"/>
+      <rect x="538" y="286" width="6" height="5"/>
+      <rect x="538" y="300" width="10" height="5"/>
+    </g>
+    <path d="M535 425l12 13 25-29" fill="none" stroke="#18aa72" stroke-width="8" stroke-linecap="square"/>
+
+    <!-- Chin: four writing worlds and the old translucent-speaker language. -->
+    <path d="M170 539h571q-8 63-68 98H237q-64 0-67-98z" fill="url(#platinum)" stroke-width="13"/>
+    <g stroke="none">
+      <rect x="262" y="575" width="30" height="14" fill="#ff4b86"/>
+      <rect x="302" y="575" width="30" height="14" fill="#ffe25a"/>
+      <rect x="342" y="575" width="30" height="14" fill="#36d7c1"/>
+      <rect x="382" y="575" width="30" height="14" fill="#6857d9"/>
+    </g>
+    <g fill="#54727c" stroke="none" opacity=".86">
+      <circle cx="625" cy="565" r="6"/><circle cx="645" cy="565" r="6"/><circle cx="665" cy="565" r="6"/>
+      <circle cx="625" cy="586" r="6"/><circle cx="645" cy="586" r="6"/><circle cx="665" cy="586" r="6"/>
+    </g>
+
+    <!-- Stand and base. -->
+    <path d="M393 635h155l19 103H372z" fill="#67d8d5" stroke-width="14"/>
+    <path d="M318 733h298l69 65H248z" fill="url(#bondi)" stroke-width="16"/>
+
+    <!-- Isometric platinum keyboard with hard pixel-like keys. -->
+    <path d="M176 744h535l132 132H261z" fill="url(#keyboard)" stroke-width="17"/>
+    <path d="M261 876h582l-37 34H285z" fill="#767f84" stroke-width="11"/>
+    <g fill="#f8f8f3" stroke="#667178" stroke-width="5">
+      <path d="M232 772h46l24 22h-48z"/><path d="M292 772h46l24 22h-48z"/><path d="M352 772h46l24 22h-48z"/>
+      <path d="M412 772h46l24 22h-48z"/><path d="M472 772h46l24 22h-48z"/><path d="M532 772h46l24 22h-48z"/>
+      <path d="M592 772h46l24 22h-48z"/><path d="M652 772h46l24 22h-48z"/>
+      <path d="M268 809h48l25 23h-49z"/><path d="M330 809h48l25 23h-49z"/><path d="M392 809h48l25 23h-49z"/>
+      <path d="M454 809h48l25 23h-49z"/><path d="M516 809h48l25 23h-49z"/><path d="M578 809h48l25 23h-49z"/>
+      <path d="M640 809h48l25 23h-49z"/>
+      <path d="M350 846h260l31 24H377z"/>
+    </g>
+
+    <!-- Sound is part of the machine, not a badge pasted onto it. -->
+    <path d="M835 262v122" fill="none" stroke="#ff4b86" stroke-width="18" stroke-linecap="square"/>
+    <path d="M835 270l63-18v108" fill="none" stroke="#ff4b86" stroke-width="18" stroke-linejoin="miter"/>
+    <ellipse cx="813" cy="398" rx="30" ry="22" fill="#ff4b86" stroke-width="10"/>
+    <ellipse cx="876" cy="375" rx="30" ry="22" fill="#ff4b86" stroke-width="10"/>
+    <path d="M901 208l20-20m-7 42l28-2m-48-54l2-28" stroke="#ffe25a" stroke-width="12" stroke-linecap="square"/>
+  </g>
+
+  <!-- A few deliberately crisp pixels keep the 1999 icon language at small sizes. -->
+  <g fill="#ffffff" opacity=".58">
+    <rect x="200" y="140" width="20" height="9"/>
+    <rect x="225" y="140" width="54" height="9"/>
+    <rect x="187" y="157" width="36" height="7"/>
+  </g>
+</svg>
