@@ -205,6 +205,7 @@ final class BackdropView: NSView {
     // MARK: - Complete writing worlds
 
     private func drawCalm() {
+        if drawWorldArt(named: "Still") { return }
         let night = NSColor(calibratedRed: 0.16, green: 0.23, blue: 0.27, alpha: 1)
         let dawn = NSColor(calibratedRed: 0.73, green: 0.62, blue: 0.48, alpha: 1)
         let paperLight = NSColor(calibratedRed: 0.93, green: 0.84, blue: 0.68, alpha: 1)
@@ -417,7 +418,23 @@ final class BackdropView: NSView {
     }
 
     private func drawLibrary() {
-        if drawWorldArt(named: "Midnight Library") { return }
+        if drawWorldArt(named: "Midnight Library") {
+            // The room remains recognisable at the perimeter, while a quiet ivory
+            // atmosphere keeps shelves and furniture from competing with prose.
+            NSColor(calibratedRed: 1, green: 0.965, blue: 0.88, alpha: 0.11).setFill()
+            bounds.fill()
+            let writingAir = NSRect(
+                x: bounds.width * 0.18,
+                y: bounds.height * 0.055,
+                width: bounds.width * 0.64,
+                height: bounds.height * 0.89
+            )
+            NSGradient(colors: [
+                NSColor(calibratedRed: 1, green: 0.975, blue: 0.91, alpha: 0.20),
+                NSColor(calibratedRed: 1, green: 0.96, blue: 0.86, alpha: 0.085)
+            ])?.draw(in: writingAir, relativeCenterPosition: .zero)
+            return
+        }
         let blackGreen = NSColor(calibratedRed: 0.008, green: 0.025, blue: 0.021, alpha: 1)
         let warmWood = NSColor(calibratedRed: 0.15, green: 0.072, blue: 0.035, alpha: 1)
         NSGradient(colors: [blackGreen, warmWood, blackGreen])?.draw(in: bounds, angle: 0)
@@ -710,7 +727,12 @@ final class BackdropView: NSView {
         if let cached = worldArtCache[name] {
             image = cached
         } else {
-            guard let url = Bundle.main.url(forResource: name, withExtension: "png", subdirectory: "World Art"),
+            guard let resourcesURL = Bundle.main.resourceURL else { return false }
+            let url = resourcesURL
+                .appendingPathComponent("World Art", isDirectory: true)
+                .appendingPathComponent(name)
+                .appendingPathExtension("png")
+            guard FileManager.default.fileExists(atPath: url.path),
                   let loaded = NSImage(contentsOf: url), loaded.size.width > 0, loaded.size.height > 0 else { return false }
             worldArtCache[name] = loaded
             image = loaded

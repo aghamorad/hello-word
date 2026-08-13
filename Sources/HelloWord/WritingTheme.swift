@@ -142,9 +142,9 @@ extension WritingTheme {
         WritingTheme(
             id: .library,
             name: "Midnight Library",
-            subtitle: "Rain, lamplight, and books after hours",
-            textColor: NSColor(calibratedRed: 0.96, green: 0.90, blue: 0.72, alpha: 1),
-            insertionColor: NSColor(calibratedRed: 1, green: 0.72, blue: 0.30, alpha: 1),
+            subtitle: "Pale lamplight, warm shelves, and hours without edges",
+            textColor: NSColor(calibratedRed: 0.20, green: 0.125, blue: 0.068, alpha: 1),
+            insertionColor: NSColor(calibratedRed: 0.46, green: 0.235, blue: 0.075, alpha: 1),
             editorColor: .clear,
             defaultFontNames: ["Iowan Old Style", "Baskerville", "Georgia"],
             defaultFontSize: 21,

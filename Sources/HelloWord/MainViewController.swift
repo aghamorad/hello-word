@@ -97,6 +97,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
 
     override func viewDidAppear() {
         super.viewDidAppear()
+        // Applying the first room before the window has real bounds can leave the
+        // backdrop's display pass showing its construction-time placeholder.
+        // Re-assert it now that the window is visible, without touching the document.
+        applyTheme(currentTheme.id, restyleText: false)
+        backdrop.needsDisplay = true
         view.window?.makeFirstResponder(textView)
         if hasShownSplash {
             revealHUD(for: 4.5)
@@ -398,7 +403,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
     }
 
     private func prepareThemedMenu(_ menu: NSMenu, minimumWidth: CGFloat = 272) {
-        let dark = [.dos, .library, .spaceAge, .cyberdeck, .hell].contains(currentTheme.id)
+        let dark = [.dos, .spaceAge, .cyberdeck, .hell].contains(currentTheme.id)
         menu.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
         menu.minimumWidth = minimumWidth
         for item in menu.items {
@@ -653,7 +658,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         let shadow = NSShadow()
         shadow.shadowOffset = .zero
         switch id {
-        case .library, .spaceAge, .hell:
+        case .spaceAge, .hell:
             shadow.shadowColor = NSColor.black.withAlphaComponent(0.86)
             shadow.shadowBlurRadius = 5
             return shadow
@@ -672,7 +677,7 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         glassControl.isHidden = currentTheme.id != .liquidGlass
 
         let pixel = currentTheme.id == .mac1999 || currentTheme.id == .system95 || currentTheme.id == .dos
-        let dark = currentTheme.id == .dos || currentTheme.id == .library || currentTheme.id == .spaceAge || currentTheme.id == .cyberdeck || currentTheme.id == .hell
+        let dark = currentTheme.id == .dos || currentTheme.id == .spaceAge || currentTheme.id == .cyberdeck || currentTheme.id == .hell
         hud.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
         hud.blendingMode = currentTheme.id == .liquidGlass ? .behindWindow : .withinWindow
         hud.state = .active
@@ -710,10 +715,10 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
             border = NSColor(calibratedRed: 0.25, green: 0.12, blue: 0.045, alpha: 1)
             buttonFill = NSColor(calibratedRed: 0.94, green: 0.86, blue: 0.68, alpha: 1)
         case .library:
-            foreground = NSColor(calibratedRed: 1, green: 0.78, blue: 0.36, alpha: 1)
-            panel = NSColor(calibratedRed: 0.035, green: 0.105, blue: 0.068, alpha: 0.93)
-            border = foreground.withAlphaComponent(0.50)
-            buttonFill = NSColor(calibratedRed: 0.08, green: 0.20, blue: 0.13, alpha: 1)
+            foreground = NSColor(calibratedRed: 0.20, green: 0.12, blue: 0.06, alpha: 1)
+            panel = NSColor(calibratedRed: 0.91, green: 0.79, blue: 0.57, alpha: 0.91)
+            border = NSColor(calibratedRed: 0.43, green: 0.27, blue: 0.12, alpha: 0.76)
+            buttonFill = NSColor(calibratedRed: 0.97, green: 0.89, blue: 0.72, alpha: 0.96)
         case .spaceAge:
             foreground = NSColor(calibratedRed: 1, green: 0.72, blue: 0.28, alpha: 1)
             panel = NSColor(calibratedRed: 0.035, green: 0.12, blue: 0.15, alpha: 0.94)
@@ -1342,10 +1347,30 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
     private func updateEditorVerticalBounds() {
         guard let top = editorTopConstraint, let bottom = editorBottomConstraint else { return }
         if currentTheme.id == .typewriter {
-            // The editor is clipped to the real sheet held in the platen. It cannot
-            // descend into the keys or float above the paper when the window resizes.
-            top.constant = max(54, backdrop.bounds.height * 0.09)
-            bottom.constant = -max(250, backdrop.bounds.height * 0.39)
+            // The art is aspect-filled, so its vertical crop changes with the window.
+            // Map the upright paper rectangle from the 1536 x 1024 source into the
+            // visible crop, then keep the editor just inside the actual sheet.
+            let targetWidth = max(1, backdrop.bounds.width)
+            let targetHeight = max(1, backdrop.bounds.height)
+            let targetAspect = targetWidth / targetHeight
+            let sourceWidth: CGFloat = 1536
+            let sourceHeight: CGFloat = 1024
+            let sourceAspect = sourceWidth / sourceHeight
+            var visibleOriginY: CGFloat = 0
+            var visibleHeight = sourceHeight
+            if sourceAspect < targetAspect {
+                visibleHeight = sourceWidth / targetAspect
+                visibleOriginY = (sourceHeight - visibleHeight) * 0.5
+            }
+
+            // Source coordinates are AppKit-style here (origin at bottom-left).
+            let paperBottom: CGFloat = 374
+            let paperTop: CGFloat = 971
+            let mappedBottom = (paperBottom - visibleOriginY) / visibleHeight * targetHeight
+            let mappedTop = (paperTop - visibleOriginY) / visibleHeight * targetHeight
+            let safeEdge: CGFloat = 8
+            top.constant = max(0, targetHeight - mappedTop) + safeEdge
+            bottom.constant = -(max(0, mappedBottom) + safeEdge)
         } else {
             top.constant = 42
             bottom.constant = -42
@@ -1558,12 +1583,12 @@ private struct EraMenuPalette {
             )
         case .library:
             return EraMenuPalette(
-                panel: NSColor(calibratedRed: 0.025, green: 0.075, blue: 0.050, alpha: 1),
-                hover: NSColor(calibratedRed: 0.12, green: 0.28, blue: 0.16, alpha: 1),
-                text: NSColor(calibratedRed: 0.96, green: 0.86, blue: 0.61, alpha: 1),
-                hoverText: NSColor(calibratedRed: 1, green: 0.91, blue: 0.68, alpha: 1),
-                accent: NSColor(calibratedRed: 0.92, green: 0.65, blue: 0.25, alpha: 1),
-                border: NSColor(calibratedRed: 0.52, green: 0.35, blue: 0.13, alpha: 0.82)
+                panel: NSColor(calibratedRed: 0.95, green: 0.87, blue: 0.70, alpha: 1),
+                hover: NSColor(calibratedRed: 0.48, green: 0.31, blue: 0.14, alpha: 1),
+                text: NSColor(calibratedRed: 0.19, green: 0.115, blue: 0.060, alpha: 1),
+                hoverText: NSColor(calibratedRed: 1, green: 0.95, blue: 0.82, alpha: 1),
+                accent: NSColor(calibratedRed: 0.47, green: 0.27, blue: 0.09, alpha: 1),
+                border: NSColor(calibratedRed: 0.43, green: 0.27, blue: 0.12, alpha: 0.82)
             )
         case .spaceAge:
             return EraMenuPalette(
@@ -1606,11 +1631,12 @@ private struct EraMenuPalette {
 }
 
 private final class EraMenuItemView: NSView {
+    private static weak var activeHover: EraMenuItemView?
     private weak var item: NSMenuItem?
     private let theme: WritingTheme
     private let palette: EraMenuPalette
     private var tracking: NSTrackingArea?
-    private var isHovered = false {
+    fileprivate var isHovered = false {
         didSet { needsDisplay = true }
     }
     var onInvoke: ((NSMenuItem) -> Void)?
@@ -1630,16 +1656,30 @@ private final class EraMenuItemView: NSView {
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
         if let tracking { removeTrackingArea(tracking) }
-        let next = NSTrackingArea(rect: bounds, options: [.mouseEnteredAndExited, .activeAlways], owner: self, userInfo: nil)
+        let next = NSTrackingArea(rect: bounds, options: [.mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self, userInfo: nil)
         addTrackingArea(next)
         tracking = next
     }
 
-    override func mouseEntered(with event: NSEvent) { isHovered = true }
-    override func mouseExited(with event: NSEvent) { isHovered = false }
+    override func viewDidMoveToSuperview() {
+        super.viewDidMoveToSuperview()
+        if superview == nil { clearHover() }
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        guard Self.activeHover !== self else { return }
+        Self.activeHover?.isHovered = false
+        Self.activeHover = self
+        isHovered = true
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        clearHover()
+    }
 
     override func mouseUp(with event: NSEvent) {
         guard let item, item.isEnabled else { return }
+        clearHover()
         if let onInvoke {
             onInvoke(item)
             return
@@ -1647,6 +1687,11 @@ private final class EraMenuItemView: NSView {
         guard let action = item.action else { return }
         item.menu?.cancelTracking()
         _ = NSApp.sendAction(action, to: item.target, from: item)
+    }
+
+    private func clearHover() {
+        isHovered = false
+        if Self.activeHover === self { Self.activeHover = nil }
     }
 
     override func draw(_ dirtyRect: NSRect) {

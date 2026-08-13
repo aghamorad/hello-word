@@ -44,12 +44,12 @@ Hello, Word is deliberately small in its visible behavior. You open it, choose a
 
 | World | What it is | What changes when you enter it |
 |---|---|---|
-| **Still** | A dawn landscape with open writing air and pale, receding ground. | Soft neutral typography, quiet keys and a restrained ambient bed that never fights the lower lines of text. |
+| **Still** | A misted lake before dawn, with the shore and distant hills dissolving at the edges of a quiet writing field. | Soft neutral typography, quiet keys and a restrained ambient bed that never fights the lower lines of text. |
 | **Macintosh 1999** | A complete platinum-era Mac writing machine. | Pixel details, period controls, classic computer-key sounds and warmer screen tones. |
 | **System 95** | A maximised mid-1990s PC desktop and writing window. | Squarer controls, system-grey surfaces and a distinct PC keyboard profile. |
 | **DOS Midnight** | The terminal itself rather than a terminal pasted onto a background. | Green phosphor text, scanlines, monospaced type and terse terminal controls. |
-| **Typewriter** | A solitary coastal room rendered in measured mid-century realism, with a real sheet held by platen, wood and metal. | The writing width ends at the paper; keys are mechanical, while Return performs a lever, carriage sweep, ratchet and platen stop rather than a stray electronic bell. |
-| **Midnight Library** | A warm, humane after-hours scene in the tradition of classic mid-century American narrative illustration. | Bookish typography, subdued controls, lamplight and an unusually quiet rain-bound room tone. |
+| **Typewriter** | A solitary Havana writing room rendered in measured mid-century realism, with a level, front-facing sheet held by platen, wood and metal. | The writing width and vertical editor bounds stay inside the real paper; keys are mechanical, while Return performs a lever, carriage sweep, ratchet and platen stop rather than a stray electronic bell. |
+| **Midnight Library** | A luminous two-storey reading room of pale honey wood, curving shelves and quiet architectural depth. | Dark bookish typography, warm paper-and-oak controls, lamplight and an unusually restrained room tone. |
 | **Space Age 1968** | An orbital word deck above a planetary horizon. | Console-like controls, analog-futurist color and slowly moving harmonic sound. |
 | **Cyberdeck 2088** | A rain-dark neon city wired into the page. | Cyan/magenta instrumentation, a distant skyline, hard readable mono type, cybernetic keys and a submerged analog pulse. |
 | **Hell** | A grave, painterly underworld of Pandemonium, black architecture, ember-lit stone and immeasurable depth. | Bone-colored text, low iron and cavern-din keystrokes, abyssal ambience, and an unnervingly calm road through damnation. Writing is hell; this room merely admits it. |
@@ -171,7 +171,7 @@ For anyone else who is not a coder—and, honestly, for me when I return to this
 | `Sources/HelloWord/MusicLibrary.swift` | Finds bundled ambience and user-supplied music, then loops the right track for the current room. |
 | `Sources/HelloWord/CorrectionEngine.swift` | Provides the Apple-backed and conservative local correction modes. |
 | `Sources/HelloWord/HarperCorrectionService.swift` | Talks to the bundled Harper helper for private contextual English correction. |
-| `Resources/World Art/` | Contains the original painterly Typewriter, Midnight Library and Hell environments. |
+| `Resources/World Art/` | Contains the original painterly Still, Typewriter, Midnight Library and Hell environments. |
 | `Resources/` | Contains the icon, Info.plist, ambient placeholders, world art and Harper's required license/archive. |
 | `Scripts/build-app.sh` | Compiles the Swift source, assembles the `.app`, adds resources and applies a local ad-hoc signature. |
 | `Tools/generate_placeholder_music.py` | Recreates the ten original ambient placeholders when NumPy and FFmpeg are available. |

@@ -1,5 +1,12 @@
 # Changelog
 
+## Private test refinement
+
+- Rebuilt Midnight Library as a luminous, inhabitable circular reading room and retuned its typography and controls for the pale honey background.
+- Replaced Still's abstract rings and waves with a pale misted lake whose center and lower field recede behind the prose.
+- Squared and levelled the Typewriter paper while preserving the existing Havana room, and mapped the editor vertically to the visible sheet at every window aspect ratio.
+- Made themed menu hover state exclusive so a highlight cannot trail from one world choice into another.
+
 ## 0.5 — First public preview
 
 - Added native Find and Replace, Find Next/Previous and Use Selection for Find; `Command–F` now works.
