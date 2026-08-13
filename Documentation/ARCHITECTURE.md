@@ -13,7 +13,7 @@ Hello, Word is a native AppKit application. There is no embedded browser, Electr
 
 `WritingTheme` is the shared definition of a room: its colors, type, insertion color, spacing, control character, sound identity and music folder. When the room changes, `MainViewController` applies that definition to the editor and controls; `BackdropView` redraws the environment; `TypingAudioController` selects the matching key profile; and `MusicLibrary` finds the matching user track or bundled placeholder.
 
-Most environments are code-drawn. Typewriter, Midnight Library and Hell use compact original painterly backdrops rendered aspect-fill, with their interactive controls and writing surfaces remaining native AppKit layers above the art. This keeps the app relatively compact, lets the rooms fill any window, and allows Liquid Glass to remain genuinely transparent.
+Most environments are code-drawn. Still, Typewriter, Midnight Library and Hell use compact original painterly backdrops rendered aspect-fill, with their interactive controls and writing surfaces remaining native AppKit layers above the art. This keeps the app relatively compact, lets the rooms fill any window, and allows Liquid Glass to remain genuinely transparent.
 
 ## How writing stays native
 

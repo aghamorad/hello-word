@@ -3,7 +3,11 @@
 set -euo pipefail
 
 PROJECT_ROOT="${0:A:h:h}"
-ARCHITECTURE="${1:-arm64}"
+ARCHITECTURE="arm64"
+if [[ "${1:-arm64}" != "arm64" ]]; then
+    print -u2 "This public preview currently builds for Apple silicon only."
+    exit 1
+fi
 BUILD_ROOT="${PROJECT_ROOT}/.build/hello-word-package-${ARCHITECTURE}"
 DIST_ROOT="${PROJECT_ROOT}/dist"
 APP_PATH="${DIST_ROOT}/${ARCHITECTURE}/Hello, Word.app"
@@ -11,22 +15,9 @@ CONTENTS_PATH="${APP_PATH}/Contents"
 MACOS_PATH="${CONTENTS_PATH}/MacOS"
 RESOURCES_PATH="${CONTENTS_PATH}/Resources"
 HELPERS_PATH="${RESOURCES_PATH}/Helpers"
-case "${ARCHITECTURE}" in
-    arm64)
-        TARGET="arm64-apple-macosx13.0"
-        HARPER_ARCHIVE="${PROJECT_ROOT}/Resources/Harper/harper-cli-aarch64-apple-darwin.tar.gz"
-        HARPER_SHA256="218d9f2003425b334ee9c3dc2f17196761deb4fa8864b24f261cd95d61dcef3f"
-        ;;
-    x86_64)
-        TARGET="x86_64-apple-macosx13.0"
-        HARPER_ARCHIVE="${PROJECT_ROOT}/Resources/Harper/harper-cli-x86_64-apple-darwin.tar.gz"
-        HARPER_SHA256="6ab3259f20fc3f3a52dd5d93c2bcc0c6753a3120b3b7acfc33101cab1f289afd"
-        ;;
-    *)
-        print -u2 "Architecture must be arm64 or x86_64."
-        exit 1
-        ;;
-esac
+TARGET="arm64-apple-macosx13.0"
+HARPER_ARCHIVE="${PROJECT_ROOT}/Resources/Harper/harper-cli-aarch64-apple-darwin.tar.gz"
+HARPER_SHA256="218d9f2003425b334ee9c3dc2f17196761deb4fa8864b24f261cd95d61dcef3f"
 
 if [[ "${BUILD_ROOT}" != "${PROJECT_ROOT}/.build/hello-word-package-${ARCHITECTURE}" || "${DIST_ROOT}" != "${PROJECT_ROOT}/dist" ]]; then
     print -u2 "Refusing to build outside the project directory."

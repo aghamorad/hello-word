@@ -20,14 +20,13 @@ I really like it. I hope you do too.
 
 ## Download
 
-The simplest route is the newest file on the [Releases](../../releases) page. Download the Apple-silicon or Intel archive for your Mac, open it, and move **Hello, Word.app** into Applications.
+The simplest route is the newest file on the [Releases](../../releases) page. Download the Apple-silicon archive, open it, and move **Hello, Word.app** into Applications.
 
 | Mac | Download |
 |---|---|
 | Apple silicon — M1, M2, M3, M4 and later | `Hello-Word-v0.5-macOS-Apple-Silicon.zip` |
-| Intel | `Hello-Word-v0.5-macOS-Intel.zip` |
 
-Both builds require macOS 13 or later. This first public build is ad-hoc signed rather than Apple-notarized, so macOS may ask you to Control-click the app and choose **Open** the first time. The app does not need an account and does not upload your writing.
+This preview is Apple-silicon only and requires macOS 13 or later. It is ad-hoc signed rather than Apple-notarized, so macOS may ask you to Control-click the app and choose **Open** the first time. The app does not need an account and does not upload your writing.
 
 ## What we tried to build
 
@@ -115,6 +114,8 @@ Please use recordings you made, purchased, downloaded with permission, or obtain
 
 The first supported audio file alphabetically becomes that world's soundtrack and overrides the bundled placeholder. If you want to keep several alternatives in the folder, rename the one you want active so that it sorts first—for example, `01 My Library at Night.m4a`.
 
+The music belongs to the world rather than to an individual document. A track placed in `library`, for example, will accompany every document you open in Midnight Library until you replace or remove it.
+
 Personal music remains outside the signed app bundle, which means it can be changed freely without damaging the app or invalidating its signature. Do not put music inside `Hello, Word.app` itself.
 
 The folders live under:
@@ -183,14 +184,12 @@ You need a Mac, Xcode Command Line Tools and macOS 13 or later.
 
 ```bash
 ./Scripts/build-app.sh arm64
-./Scripts/build-app.sh x86_64
 ```
 
 The finished application appears at:
 
 ```text
 dist/arm64/Hello, Word.app
-dist/x86_64/Hello, Word.app
 ```
 
 The build uses only Apple's installed frameworks and the verified Harper archive already included in `Resources/Harper`; it does not fetch private dependencies or require credentials.
@@ -199,7 +198,7 @@ The build uses only Apple's installed frameworks and the verified Harper archive
 
 This is a real working app, but it is also the first public build. A few things remain deliberately candid:
 
-- The downloadable previews are architecture-specific and are not yet notarized by Apple.
+- The downloadable preview currently supports Apple-silicon Macs and is not yet notarized by Apple.
 - Document support is TXT/Markdown/RTF rather than DOCX, PDF or a proprietary library.
 - Footnotes are practical linked notes, not yet a citation manager or page-layout engine.
 - The correction system is substantially more contextual than native spelling, but it is not Microsoft Word and should not be advertised as infallible.
@@ -210,5 +209,7 @@ This is a real working app, but it is also the first public build. A few things 
 The Hello, Word source, icon, original world art and bundled ambient tracks are copyright © 2026 Morad Moazami. All rights are reserved for now; I have made the source visible so people can understand the project and help improve it, but I have not yet chosen a broader open-source license.
 
 The bundled contextual checker is [Harper](https://github.com/Automattic/harper), distributed under the Apache License 2.0. Its license is preserved in `Resources/Harper/LICENSE.txt` and inside the application bundle.
+
+The Typewriter world uses edited excerpts from recordings by Konrad Gutkowski / Work With Sounds and ramsamba. Their Creative Commons attribution and source links are preserved in `Resources/Typing Sounds/TYPEWRITER_LICENSE.txt` and inside the application bundle.
 
 Hello, Word was inspired by the calm and discipline of OmmWriter, but its code, visual worlds, sounds and interface were built independently.
