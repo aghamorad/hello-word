@@ -24,6 +24,10 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
     private let widthControl = NSStackView()
     private let glassControl = NSStackView()
     private let countLabel = NSTextField(labelWithString: "0 words")
+    private let updateStamp = NSButton()
+    private let updates = UpdateChecker()
+    private var stampColor: NSColor = .secondaryLabelColor
+    private var hasCheckedForUpdates = false
 
     private let typingAudio = TypingAudioController()
     private let musicLibrary = MusicLibrary()
@@ -107,6 +111,13 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
             revealHUD(for: 4.5)
         } else {
             showOpeningSplashIfNeeded()
+        }
+
+        // Asked once, once the room is up. Nothing waits on the answer, and
+        // nothing is shown if it does not come.
+        if !hasCheckedForUpdates {
+            hasCheckedForUpdates = true
+            updates.check()
         }
     }
 
@@ -213,10 +224,23 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         countLabel.textColor = .secondaryLabelColor
         countLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
 
+        // The version stamp sits at the far end of the strip, past the word
+        // count: the last thing in the room, and the only place a stale build
+        // ever says so. It is a button in every state, because asking "am I
+        // current?" is a fair question whether or not anything turned up.
+        updateStamp.isBordered = false
+        updateStamp.setButtonType(.momentaryChange)
+        updateStamp.target = self
+        updateStamp.action = #selector(showUpdateCard(_:))
+        updateStamp.toolTip = "Which version this is, and whether a newer one has been cut."
+        updateStamp.setContentCompressionResistancePriority(.required, for: .horizontal)
+        updates.onChange = { [weak self] in self?.refreshUpdateStamp() }
+        refreshUpdateStamp()
+
         let stack = NSStackView(views: [
             themePopup, fullScreenButton, fontButton, footnoteButton, smallerButton, largerButton,
             typingButton, musicButton, folderButton, widthControl, glassControl,
-            correctionPopup, countLabel
+            correctionPopup, countLabel, updateStamp
         ])
         stack.orientation = .horizontal
         stack.alignment = .centerY
@@ -744,6 +768,11 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         hud.layer?.backgroundColor = panel.cgColor
         hud.layer?.borderColor = border.cgColor
         countLabel.textColor = foreground
+        // Every room has its own ink, so the stamp takes its colour from the
+        // room rather than from the system — except when it has something to
+        // say, which has to read in all ten of them.
+        stampColor = foreground.withAlphaComponent(0.72)
+        refreshUpdateStamp()
 
         let buttonStyle: NSButton.BezelStyle = pixel ? .regularSquare : .texturedRounded
         let controls = [fullScreenButton, fontButton, footnoteButton, smallerButton, largerButton, typingButton, musicButton, folderButton]
@@ -988,6 +1017,34 @@ final class MainViewController: NSViewController, NSTextViewDelegate, NSWindowDe
         let work = DispatchWorkItem { [weak self] in self?.updateWordCount() }
         statusRestoreWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.4, execute: work)
+    }
+
+    /// The stamp is the whole of the notice: the version normally, and the
+    /// version that is out once this build is behind. Nothing about it moves,
+    /// animates, or asks to be read.
+    private func refreshUpdateStamp() {
+        let weight: NSFont.Weight = updates.hasUpdate ? .semibold : .regular
+        updateStamp.attributedTitle = NSAttributedString(
+            string: updates.stamp,
+            attributes: [
+                .font: NSFont.monospacedDigitSystemFont(ofSize: 11, weight: weight),
+                .foregroundColor: updates.hasUpdate ? .systemOrange : stampColor
+            ]
+        )
+
+        // A card left open while an answer lands should not keep showing the
+        // sentence it was opened with.
+        if let card = presentedViewControllers?.first(where: { $0 is UpdateCardController }) as? UpdateCardController {
+            card.refresh()
+        }
+    }
+
+    /// Opened only from the stamp or from "Check for Updates…". The card never
+    /// arrives on its own, and it is the only place the version numbers are
+    /// written out in full.
+    @objc func showUpdateCard(_ sender: Any?) {
+        guard presentedViewControllers?.contains(where: { $0 is UpdateCardController }) != true else { return }
+        presentAsSheet(UpdateCardController(updates: updates))
     }
 
     private func syncButtonStates() {

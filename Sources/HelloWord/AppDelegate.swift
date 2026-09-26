@@ -30,6 +30,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appItem.submenu = appMenu
         main.addItem(appItem)
         appMenu.addItem(withTitle: "About Hello, Word", action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), keyEquivalent: "")
+        // A nil target sends this through the responder chain to the editor, so
+        // the menu reaches the same card the version stamp does.
+        appMenu.addItem(withTitle: "Check for Updates…", action: #selector(MainViewController.showUpdateCard(_:)), keyEquivalent: "")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Hide Hello, Word", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         let hideOthers = NSMenuItem(title: "Hide Others", action: #selector(NSApplication.hideOtherApplications(_:)), keyEquivalent: "h")
