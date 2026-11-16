@@ -1,0 +1,32 @@
+name: Compile native Moby Thesaurus for Apple Dictionary
+on:
+  push:
+    branches: [moby-thesaurus-macos-build]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-dictionary:
+    runs-on: macos-15
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build native dictionary using Apple Dictionary Development Kit
+        run: bash scripts/build-macos.sh
+      - name: Validate distributable
+        run: |
+          cd dist
+          shasum -a 256 -c SHA256SUMS.txt
+          unzip -l 'Moby Thesaurus II.dictionary.zip' | grep 'Body.data'
+          unzip -l 'Moby Thesaurus II.dictionary.zip' | grep 'KeyText.index'
+          unzip -l 'Moby Thesaurus II.dictionary.zip' | grep 'EntryID.index'
+      - name: Upload native Dictionary bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: Moby-Thesaurus-II-Native-Apple-Dictionary
+          path: |
+            dist/Moby Thesaurus II.dictionary.zip
+            dist/SHA256SUMS.txt
+            build/source/source-statistics.json
+          if-no-files-found: error
+          retention-days: 90
