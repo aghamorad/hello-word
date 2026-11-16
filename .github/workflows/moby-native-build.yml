@@ -7,7 +7,7 @@ permissions:
   contents: read
 jobs:
   native-dictionary:
-    runs-on: macos-15
+    runs-on: macos-15-intel
     timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
